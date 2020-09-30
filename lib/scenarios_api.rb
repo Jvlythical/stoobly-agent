@@ -16,7 +16,7 @@ class ScenariosApi
       project_id: project_id
     }.merge(query_params)
 
-    headers['params'] = params
+    headers[:params] = params
 
     RestClient.get url, headers
   end
