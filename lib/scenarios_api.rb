@@ -1,4 +1,4 @@
-require 'rest-client'
+require 'net/http'
 
 class ScenariosApi
   REQUESTS_ENDPOINT = '/requests'
@@ -10,15 +10,23 @@ class ScenariosApi
 
   def request_response(project_id, **query_params)
     url = "#{@service_url}#{REQUESTS_ENDPOINT}/response" 
+    uri = URI.parse url
 
-    headers = default_headers
     params = {
       project_id: project_id
     }.merge(query_params)
+    uri.query = URI.encode_www_form(params)
 
-    headers[:params] = params
+    req = Net::HTTP::Get.new(uri)
 
-    RestClient.get url, headers
+    headers = default_headers
+    headers.each do |name, value|
+      req[name] = value
+    end
+    
+    Net::HTTP.start(uri.hostname, uri.port) { |http|
+      http.request(req)
+    }
   end
   
   private
