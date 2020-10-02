@@ -11,12 +11,7 @@ class ApplicationController < ActionController::API
 
     render_response_headers res
 
-    case res.content_type
-    when 'application/json'
-      render json: res.body, status: res.code
-    else
-      render plain: res.body, status: res.code
-    end
+    render plain: res.body, status: res.code
   end
 
   private
@@ -43,6 +38,7 @@ class ApplicationController < ActionController::API
     
     # Without deleting this header, causes caller to stall
     headers.delete 'Transfer-Encoding'
+
     headers.each do |key, value|
       response.set_header(key, value)
     end
