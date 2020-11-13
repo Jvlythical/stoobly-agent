@@ -51,3 +51,4 @@ Thumbs.db
 config/env.yml
 .byebug_history
 tmp/*
+db/*sqlite3
