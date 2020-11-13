@@ -23,8 +23,8 @@ class ScenariosApi
     headers.each do |name, value|
       req[name] = value
     end
-    
-    Net::HTTP.start(uri.hostname, uri.port) { |http|
+
+    Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme == 'https') { |http|
       http.request(req)
     }
   end
