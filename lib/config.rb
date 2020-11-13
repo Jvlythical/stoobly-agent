@@ -6,11 +6,11 @@ class Config
 
   def initialize
     @config = YAML.load_file(File.join(File.dirname(__FILE__), '..', 'config', 'env.yml')) 
-    @env = ENV['SCENARIOS_ENV'] || 'development'
+    @env = ENV['RAILS_ENV'] || 'development'
   end
 
-  def service_url
-    @config.dig(@env, 'service_url') || ENV['SCENARIOS_SERVICE_URL']
+  def scenarios_url
+    @config.dig(@env, 'scenarios_url') || ENV['SCENARIOS_URL']
   end
 
   def project_id

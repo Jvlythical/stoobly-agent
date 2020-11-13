@@ -1,13 +1,9 @@
 class ApplicationController < ActionController::API
   def route
-    api = ScenariosApi.new(Config.instance.service_url, Config.instance.api_key)
+    api = ScenariosApi.new(Config.instance.scenarios_url, Config.instance.api_key)
     query_params = build_query_params
 
-    begin
-      res = api.request_response(Config.instance.project_id, query_params)
-    rescue RestClient::RequestFailed => err
-      res = err.response
-    end
+    res = api.request_response(Config.instance.project_id, query_params)
 
     render_response_headers res
 
