@@ -33,6 +33,9 @@ module ScenariosMockApi
     # Middleware like session, flash, cookies can be added back manually.
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
+    
+    # By default rails-api doesn't accept cookies, add it here
+    config.middleware.use ActionDispatch::Cookies
 
     # Eagerly load the lib/ folder. Folder often contains useful utility methods.
     config.eager_load_paths << Rails.root.join('lib')
