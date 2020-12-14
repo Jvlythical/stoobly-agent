@@ -1,17 +1,41 @@
 class ApplicationController < ActionController::API
+  include ActionController::Cookies
+  include ReverseProxy::Controller
+
   def route
     api = ScenariosApi.new(Config.instance.scenarios_url, Config.instance.api_key)
     query_params = build_query_params
 
     res = api.request_response(Config.instance.project_id, query_params)
+ 
+    # If the response was not found, try to forward the request to
+    # the service specified by Config.instance.service_url
+    #
+    # Otherwise, return response headers, body, and status code
+    if res.is_a? Net::HTTPNotFound && Config.instance.service_url
+      options = {
+        headers: { 'CONNECTION' => nil }, # Disable setting connection, keep-alive is not supported
+        http: { open_timeout: 5 },
+      }
 
-    render_response_headers res
-
-    render plain: res.body, status: res.code
+      reverse_proxy Config.instance.service_url, options do |config|
+        config.on_response do |code, reponse|
+        end
+      end
+    else
+      render_response_headers res
+      render plain: res.body, status: res.code
+    end
   end
 
   private
-
+  
+  ###
+  #
+  # Formats request into parameters expected by scenarios api
+  #
+  # @return [Hash] query parameters to pass to scenarios api
+  #
   def build_query_params
     hashed_request = HashedRequestDecorator.new(request)
 
@@ -28,7 +52,11 @@ class ApplicationController < ActionController::API
 
     query_params
   end
-
+  
+  ###
+  #
+  # Formats response headers
+  #
   def render_response_headers(res)
     headers = res.each_capitalized.to_h
     
