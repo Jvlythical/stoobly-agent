@@ -20,4 +20,8 @@ class Config
   def api_key
     @config.dig(@env, 'api_key') || ENV['SCENARIOS_API_KEY']
   end
+
+  def service_url
+    @config.dig(@env, 'service_url') || ENV['SCENARIOS_API_KEY']
+  end
 end
