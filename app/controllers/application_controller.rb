@@ -12,14 +12,19 @@ class ApplicationController < ActionController::API
     # the service specified by Config.instance.service_url
     #
     # Otherwise, return response headers, body, and status code
-    if res.is_a? Net::HTTPNotFound && Config.instance.service_url
+    if res.is_a?(Net::HTTPNotFound) && Config.instance.service_url
       options = {
         headers: { 'CONNECTION' => nil }, # Disable setting connection, keep-alive is not supported
         http: { open_timeout: 5 },
       }
 
       reverse_proxy Config.instance.service_url, options do |config|
-        config.on_response do |code, reponse|
+        config.on_response do |code, res|
+          joined_request = JoinedRequest.new(request).with_response(res)
+          joined_request_string = joined_request.build
+          api.request_create(
+            Config.instance.project_id, joined_request_string, importer: 'gor'
+          )
         end
       end
     else
@@ -46,8 +51,8 @@ class ApplicationController < ActionController::API
     query_params = {}
     query_params[:path] = request.path
     query_params[:method] = request.method
-    query_params[:query_param_name_hash] = query_param_name_hash unless query_param_name_hash.empty?
-    query_params[:query_param_value_hash] = query_param_value_hash unless query_param_value_hash.empty?
+    query_params[:query_param_names_hash] = query_param_name_hash unless query_param_name_hash.empty?
+    query_params[:query_param_values_hash] = query_param_value_hash unless query_param_value_hash.empty?
     query_params[:body_text_hash] = body_text_hash unless body_text_hash.empty?
 
     query_params

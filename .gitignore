@@ -52,3 +52,6 @@ config/env.yml
 .byebug_history
 tmp/*
 db/*sqlite3
+
+# Ignore vim swap files
+*.sw*
