@@ -7,12 +7,16 @@ class ApplicationController < ActionController::API
     query_params = build_query_params
 
     res = api.request_response(Config.instance.project_id, query_params)
- 
+    
+    ###
+    #
+    # Request not found status code is 499
+    #
     # If the response was not found, try to forward the request to
     # the service specified by Config.instance.service_url
     #
     # Otherwise, return response headers, body, and status code
-    if res.is_a?(Net::HTTPNotFound) && Config.instance.service_url
+    if res.code == '499' && Config.instance.service_url
       options = {
         headers: { 'CONNECTION' => nil }, # Disable setting connection, keep-alive is not supported
         http: { open_timeout: 5 },
