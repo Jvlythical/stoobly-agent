@@ -37,11 +37,15 @@ class ResponseString
   end
 
   def body
-    if @response.body.is_a? String
+    if @response.body.nil?
+      @lines.push "#{CLRF}"
+    elsif @response.body.is_a? String
       @lines.push "#{CLRF}#{@response.body}"
-    else
+    elsif @respond.respond_to? :rewind 
       @response.body.rewind
       @lines.push "#{CLRF}#{@response.body.read}"
+    else
+      raise 'Unsupported body type'
     end
   end
 
