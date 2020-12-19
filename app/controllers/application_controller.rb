@@ -59,9 +59,9 @@ class ApplicationController < ActionController::API
 
         wait_time = expected_latency - estimated_rtt_network_latency - api_latency
 
-        Rails.logger.debug "Expected latency: #{expected_latency}"
-        Rails.logger.debug "API latency: #{api_latency}"
-        Rails.logger.debug "Wait time: #{wait_time}"
+        Rails.logger.debug "  Expected latency: #{expected_latency}"
+        Rails.logger.debug "  API latency: #{api_latency}"
+        Rails.logger.debug "  Wait time: #{wait_time}"
 
         sleep wait_time unless wait_time < 0
       end
