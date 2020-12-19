@@ -32,6 +32,15 @@ class ApplicationController < ActionController::API
         end
       end
     else
+      latency = res.headers['X-RESPONSE-LATENCY']
+      unless latency.nil?
+        estimated_network_latency = 0.025
+        latency = latency.to_f / 1000
+
+        wait_time = latency - estimated_network_latency
+        sleep wait_time unless wait_time < 0
+      end
+
       render_response_headers res
       render plain: res.body, status: res.code
     end
