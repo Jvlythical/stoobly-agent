@@ -37,7 +37,7 @@ class ScenariosApi
     req = Net::HTTP::Get.new(uri)
     set_headers(req)
     
-    Rails.logger.debug "Requesting: #{uri}"
+    Rails.logger.debug "Request URL: #{uri}"
 
     send(uri, req) 
   end

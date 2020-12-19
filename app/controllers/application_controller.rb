@@ -19,7 +19,7 @@ class ApplicationController < ActionController::API
     #
     # Otherwise, return response headers, body, and status code
     if res.code == '499' && Config.instance.service_url
-      Rails.logger.debug "Failed to find request, passing on..."
+      Rails.logger.log "Failed to find request, passing on..."
 
       options = {
         headers: { 'CONNECTION' => nil }, # Disable setting connection, keep-alive is not supported
@@ -28,6 +28,10 @@ class ApplicationController < ActionController::API
 
       reverse_proxy Config.instance.service_url, options do |config|
         config.on_response do |code, res|
+          ###
+          #
+          # Upon receiving a response, create the request in API for future use
+          #
           joined_request = JoinedRequest.new(request).with_response(res)
           joined_request_string = joined_request.build
           api.request_create(
@@ -36,6 +40,16 @@ class ApplicationController < ActionController::API
         end
       end
     else
+      ###
+      #
+      # Try to simulate expected response latency
+      #
+      # wait_time (seconds) = expected_latency - estimated_rtt_network_latency - api_latency
+      #
+      # expected_latency = provided value
+      # estimated_rtt_network_latency = 15ms
+      # api_latency = current_time - start_time of this request
+      #
       expected_latency = res['X-RESPONSE-LATENCY']
 
       unless expected_latency.nil?
