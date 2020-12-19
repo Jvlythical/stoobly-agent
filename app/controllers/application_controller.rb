@@ -3,6 +3,8 @@ class ApplicationController < ActionController::API
   include ReverseProxy::Controller
 
   def route
+    start_time = Time.now
+
     api = ScenariosApi.new(Config.instance.scenarios_url, Config.instance.api_key)
     query_params = build_query_params
 
@@ -17,6 +19,8 @@ class ApplicationController < ActionController::API
     #
     # Otherwise, return response headers, body, and status code
     if res.code == '499' && Config.instance.service_url
+      Rails.logger.debug "Failed to find request, passing on..."
+
       options = {
         headers: { 'CONNECTION' => nil }, # Disable setting connection, keep-alive is not supported
         http: { open_timeout: 5 },
@@ -32,12 +36,19 @@ class ApplicationController < ActionController::API
         end
       end
     else
-      latency = res.headers['X-RESPONSE-LATENCY']
-      unless latency.nil?
-        estimated_network_latency = 0.025
-        latency = latency.to_f / 1000
+      expected_latency = res['X-RESPONSE-LATENCY']
 
-        wait_time = latency - estimated_network_latency
+      unless expected_latency.nil?
+        estimated_rtt_network_latency = 0.015 # seconds
+        api_latency = (Time.now - start_time)
+        expected_latency = expected_latency.to_f / 1000
+
+        wait_time = expected_latency - estimated_rtt_network_latency - api_latency
+
+        Rails.logger.debug "Expected latency: #{expected_latency}"
+        Rails.logger.debug "API latency: #{api_latency}"
+        Rails.logger.debug "Wait time: #{wait_time}"
+
         sleep wait_time unless wait_time < 0
       end
 
@@ -49,7 +60,7 @@ class ApplicationController < ActionController::API
   private
   
   ###
-  #
+  
   # Formats request into parameters expected by scenarios api
   #
   # @return [Hash] query parameters to pass to scenarios api
