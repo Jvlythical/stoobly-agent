@@ -24,4 +24,8 @@ class Config
   def service_url
     @config.dig(@env, 'service_url') || ENV['SCENARIOS_API_KEY']
   end
+
+  def upload_policy
+    @config.dig(@env, 'upload_policy' || ENV['SCENARIOS_UPLOAD_POLICY'])
+  end
 end

@@ -4,50 +4,51 @@ class ApplicationController < ActionController::API
 
   def route
     start_time = Time.now
-
     api = ScenariosApi.new(Config.instance.scenarios_url, Config.instance.api_key)
-    query_params = build_query_params
 
-    res = api.request_response(Config.instance.project_id, query_params)
+    case Config.instance.upload_policy
+    when UPLOAD_POLICY[:NOT_FOUND]
+      res = eval_request(api)
+
+      unless res.code == '499'
+        simulate_latency(start_time)
+
+        return pass_on(res)
+      end
+    end
     
     ###
     #
-    # Request not found status code is 499
+    # If either:
+    #   - response was not found
+    #   - config/env.yml upload_policy is not configured
+    # 
+    # then try to forwarding the request to the service specified by Config.instance.service_url
     #
-    # If the response was not found, try to forward the request to
-    # the service specified by Config.instance.service_url
-    #
-    # Otherwise, return response headers, body, and status code
-    if res.code == '499' && Config.instance.service_url
-      Rails.logger.info "Failed to find request, passing on..."
+    unless Config.instance.service_url
+      raise 'config/env.yml service_url is not set'
+    end
 
-      options = {
-        headers: { 'CONNECTION' => nil }, # Disable setting connection, keep-alive is not supported
-        http: { open_timeout: 5 },
-      }
+    Rails.logger.info "Failed to find request, passing on..."
 
-      reverse_proxy Config.instance.service_url, options do |config|
-        config.on_response do |code, res|
-          ###
-          #
-          # Upon receiving a response, create the request in API for future use
-          #
-          joined_request = JoinedRequest.new(request).with_response(res)
-          joined_request_string = joined_request.build
-          api.request_create(
-            Config.instance.project_id, joined_request_string, importer: 'gor'
-          )
-        end
+    options = {
+      headers: { 'CONNECTION' => nil }, # Disable setting connection, keep-alive is not supported
+      http: { open_timeout: 5 },
+    }
+
+    reverse_proxy Config.instance.service_url, options do |config|
+      config.on_response do |code, res|
+        upload_request(api, res) 
       end
-    else
-      simulate_latency(start_time)
-
-      render_response_headers res
-      render plain: res.body, status: res.code
     end
   end
 
   private
+
+  def eval_request(api)
+    query_params = build_query_params
+    api.request_response(Config.instance.project_id, query_params)
+  end
 
   ###
   #
@@ -74,7 +75,7 @@ class ApplicationController < ActionController::API
   end
   
   ###
-  
+  # 
   # Formats request into parameters expected by scenarios api
   #
   # @return [Hash] query parameters to pass to scenarios api
@@ -109,5 +110,26 @@ class ApplicationController < ActionController::API
     headers.each do |key, value|
       response.set_header(key, value)
     end
+  end
+  
+  ##
+  #
+  # Return response headers, body, and status code
+  #
+  def pass_on(res)
+    render_response_headers res
+    render plain: res.body, status: res.code
+  end
+
+  ###
+  #
+  #Upon receiving a response, create the request in API for future use
+  #
+  def upload_request(api, res)
+    joined_request = JoinedRequest.new(request).with_response(res)
+    joined_request_string = joined_request.build
+    api.request_create(
+      Config.instance.project_id, joined_request_string, importer: 'gor'
+    )
   end
 end
