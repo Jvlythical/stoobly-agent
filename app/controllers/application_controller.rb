@@ -19,7 +19,7 @@ class ApplicationController < ActionController::API
     #
     # Otherwise, return response headers, body, and status code
     if res.code == '499' && Config.instance.service_url
-      Rails.logger.log "Failed to find request, passing on..."
+      Rails.logger.info "Failed to find request, passing on..."
 
       options = {
         headers: { 'CONNECTION' => nil }, # Disable setting connection, keep-alive is not supported
