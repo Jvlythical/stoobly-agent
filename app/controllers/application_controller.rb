@@ -40,31 +40,7 @@ class ApplicationController < ActionController::API
         end
       end
     else
-      ###
-      #
-      # Try to simulate expected response latency
-      #
-      # wait_time (seconds) = expected_latency - estimated_rtt_network_latency - api_latency
-      #
-      # expected_latency = provided value
-      # estimated_rtt_network_latency = 15ms
-      # api_latency = current_time - start_time of this request
-      #
-      expected_latency = res['X-RESPONSE-LATENCY']
-
-      unless expected_latency.nil?
-        estimated_rtt_network_latency = 0.015 # seconds
-        api_latency = (Time.now - start_time)
-        expected_latency = expected_latency.to_f / 1000
-
-        wait_time = expected_latency - estimated_rtt_network_latency - api_latency
-
-        Rails.logger.debug "  Expected latency: #{expected_latency}"
-        Rails.logger.debug "  API latency: #{api_latency}"
-        Rails.logger.debug "  Wait time: #{wait_time}"
-
-        sleep wait_time unless wait_time < 0
-      end
+      simulate_latency(start_time)
 
       render_response_headers res
       render plain: res.body, status: res.code
@@ -72,6 +48,30 @@ class ApplicationController < ActionController::API
   end
 
   private
+
+  ###
+  #
+  # Try to simulate expected response latency
+  #
+  # wait_time (seconds) = expected_latency - estimated_rtt_network_latency - api_latency
+  #
+  # expected_latency = provided value
+  # estimated_rtt_network_latency = 15ms
+  # api_latency = current_time - start_time of this request
+  #
+  def simulate_latency(start_time)
+    expected_latency = res['X-RESPONSE-LATENCY']
+    return if expected_latency.nil?
+    estimated_rtt_network_latency = 0.015 # seconds
+    api_latency = (Time.now - start_time)
+    expected_latency = expected_latency.to_f / 1000
+
+    wait_time = expected_latency - estimated_rtt_network_latency - api_latency
+
+    Rails.logger.debug "  Expected latency: #{expected_latency}"
+    Rails.logger.debug "  API latency: #{api_latency}"
+    Rails.logger.debug "  Wait time: #{wait_time}"
+  end
   
   ###
   
