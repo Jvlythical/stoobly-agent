@@ -15,6 +15,8 @@ class ApplicationController < ActionController::API
 
         return pass_on(res)
       end
+
+      Rails.logger.warn "Failed to find request, passing on..."
     end
     
     ###
@@ -28,8 +30,6 @@ class ApplicationController < ActionController::API
     unless Config.instance.service_url
       raise 'config/env.yml service_url is not set'
     end
-
-    Rails.logger.info "Failed to find request, passing on..."
 
     options = {
       headers: { 'CONNECTION' => nil }, # Disable setting connection, keep-alive is not supported
