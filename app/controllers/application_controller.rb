@@ -11,7 +11,7 @@ class ApplicationController < ActionController::API
       res = eval_request(api)
 
       unless res.code == '499'
-        simulate_latency(start_time)
+        simulate_latency(res['X-RESPONSE-LATENCY'], start_time)
 
         return pass_on(res)
       end
@@ -60,8 +60,7 @@ class ApplicationController < ActionController::API
   # estimated_rtt_network_latency = 15ms
   # api_latency = current_time - start_time of this request
   #
-  def simulate_latency(start_time)
-    expected_latency = res['X-RESPONSE-LATENCY']
+  def simulate_latency(expected_latency, start_time)
     return if expected_latency.nil?
     estimated_rtt_network_latency = 0.015 # seconds
     api_latency = (Time.now - start_time)
@@ -72,6 +71,10 @@ class ApplicationController < ActionController::API
     Rails.logger.debug "  Expected latency: #{expected_latency}"
     Rails.logger.debug "  API latency: #{api_latency}"
     Rails.logger.debug "  Wait time: #{wait_time}"
+
+    sleep wait_time unless wait_time < 0
+
+    wait_time
   end
   
   ###
