@@ -6,9 +6,11 @@ Mock API and/or proxy for a HTTP service. Uses scenarios-backend to retrieve moc
 
 * Copy config/env.yml.sample to config/env.yml
 
-* Edit as needed
+* Edit as needed (see below)
 
 ## Configuration
+
+The following are the supported configuration for config/env.yml
 
 #### api_key
 
