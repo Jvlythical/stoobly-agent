@@ -38,13 +38,9 @@ e.g. http://localhost:3000
 
 #### upload_policy
 
-##### default
+* *default*: requests will always be sent to `service_url` and then uploaded to scenarios API.
 
-Requests will always be sent to `service_url` and then uploaded to scenarios API.
-
-##### not_found
-
-Requests will be sent to scenarios API and if no response is found, each request will be proxied to `service_url`.
+* *not_found*: requests will be sent to scenarios API and if no response is found, each request will be proxied to `service_url`.
 If a response is sucessfully received (regardless of status code), the request and response will be uploaded to scenarios URL.
 
 ## Usage
