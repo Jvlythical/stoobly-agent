@@ -1,5 +1,7 @@
 # Scenarios Mock API
 
+Mock API and/or proxy for a HTTP service. Uses scenarios-backend to retrieve mocked responses or proxies requests to actual service.
+
 ## Getting Started
 
 * Copy config/env.yml.sample to config/env.yml
