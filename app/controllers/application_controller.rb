@@ -126,13 +126,15 @@ class ApplicationController < ActionController::API
 
   ###
   #
-  #Upon receiving a response, create the request in API for future use
+  # Upon receiving a response, create the request in API for future use
   #
   def upload_request(api, res)
-    joined_request = JoinedRequest.new(request).with_response(res)
-    joined_request_string = joined_request.build
-    api.request_create(
-      Config.instance.project_id, joined_request_string, importer: 'gor'
-    )
+    Thread.new {
+      joined_request = JoinedRequest.new(request).with_response(res)
+      joined_request_string = joined_request.build
+      api.request_create(
+        Config.instance.project_id, joined_request_string, importer: 'gor'
+      )
+    }
   end
 end
