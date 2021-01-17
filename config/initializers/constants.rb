@@ -1,4 +1,4 @@
 UPLOAD_POLICY = {
-  DEFAULT: 'default',
+  ANY: 'any',
   NOT_FOUND: 'not_found',
 }
