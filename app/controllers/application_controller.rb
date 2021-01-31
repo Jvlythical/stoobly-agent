@@ -5,8 +5,9 @@ class ApplicationController < ActionController::API
   def route
     start_time = Time.now
     api = ScenariosApi.new(Config.instance.scenarios_url, Config.instance.api_key)
+    upload_policy = get_upload_policy
 
-    case Config.instance.upload_policy
+    case upload_policy
     when UPLOAD_POLICY[:NOT_FOUND]
       res = eval_request(api)
 
@@ -27,18 +28,21 @@ class ApplicationController < ActionController::API
     # 
     # then try to forwarding the request to the service specified by Config.instance.service_url
     #
-    unless Config.instance.service_url
+    service_url = get_service_url
+    unless service_url
       raise 'config/env.yml service_url is not set'
-    end
+    end 
 
-    options = {
-      headers: { 'CONNECTION' => nil }, # Disable setting connection, keep-alive is not supported
-      http: { open_timeout: 5 },
-    }
+    disable_web_cache()
 
-    reverse_proxy Config.instance.service_url, options do |config|
+    options = get_options()
+
+    reverse_proxy service_url, options do |config|
       config.on_response do |code, res|
-        upload_request(api, res) 
+        case upload_policy
+        when UPLOAD_POLICY[:ANY]
+          upload_request(api, res) 
+        end
       end
     end
   end
@@ -135,6 +139,28 @@ class ApplicationController < ActionController::API
       api.request_create(
         Config.instance.project_id, joined_request_string, importer: 'gor'
       )
+    }
+  end
+
+  def disable_web_cache
+    request.headers['CACHE-CONTROL'] = 'no-cache'
+    request.headers['IF-NONE-MATCH'] = nil
+  end
+
+  def get_upload_policy
+    headers['X-UPLOAD-POLICY'] || Config.instance.upload_policy
+  end
+
+  def get_service_url
+    headers['X-SERVICE-URL'] || Config.instance.service_url
+  end
+
+  def get_options 
+    {
+      headers: { 
+        'CONNECTION' => nil, # Disable setting connection, keep-alive is not supported
+      }, 
+      http: { open_timeout: 5 },
     }
   end
 end
