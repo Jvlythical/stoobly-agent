@@ -148,11 +148,11 @@ class ApplicationController < ActionController::API
   end
 
   def get_upload_policy
-    headers['X-UPLOAD-POLICY'] || Config.instance.upload_policy
+    request.headers['X-UPLOAD-POLICY'] || Config.instance.upload_policy
   end
 
   def get_service_url
-    headers['X-SERVICE-URL'] || Config.instance.service_url
+    request.headers['X-SERVICE-URL'] || Config.instance.service_url
   end
 
   def get_options 
