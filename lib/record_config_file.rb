@@ -1,7 +1,7 @@
 require 'singleton'
 require 'yaml'
 
-class Config
+class RecordConfigFile
   include Singleton
 
   def initialize

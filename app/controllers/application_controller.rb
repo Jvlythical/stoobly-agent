@@ -5,7 +5,7 @@ class ApplicationController < ActionController::API
   def route
     start_time = Time.now
 
-    api = ScenariosApi.new(Config.instance.scenarios_url, Config.instance.api_key)
+    api = ScenariosApi.new(RecordConfigFile.instance.scenarios_url, RecordConfigFile.instance.api_key)
     upload_policy = get_upload_policy
 
     case upload_policy
@@ -27,7 +27,7 @@ class ApplicationController < ActionController::API
     #   - response was not found
     #   - config/env.yml upload_policy is not configured
     # 
-    # then try to forwarding the request to the service specified by Config.instance.service_url
+    # then try to forwarding the request to the service specified by RecordConfigFile.instance.service_url
     #
     service_url = get_service_url
     unless service_url
@@ -52,7 +52,7 @@ class ApplicationController < ActionController::API
 
   def eval_request(api)
     query_params = build_query_params
-    api.request_response(Config.instance.project_id, query_params)
+    api.request_response(RecordConfigFile.instance.project_id, query_params)
   end
 
   ###
@@ -138,7 +138,7 @@ class ApplicationController < ActionController::API
       joined_request = JoinedRequest.new(request).with_response(res)
       joined_request_string = joined_request.build
       api.request_create(
-        Config.instance.project_id, joined_request_string, importer: 'gor'
+        RecordConfigFile.instance.project_id, joined_request_string, importer: 'gor'
       )
     }
   end
@@ -149,11 +149,11 @@ class ApplicationController < ActionController::API
   end
 
   def get_upload_policy
-    request.headers['X-UPLOAD-POLICY'] || Config.instance.upload_policy
+    request.headers['X-UPLOAD-POLICY'] || RecordConfigFile.instance.upload_policy
   end
 
   def get_service_url
-    request.headers['X-SERVICE-URL'] || Config.instance.service_url
+    request.headers['X-SERVICE-URL'] || RecordConfigFile.instance.service_url
   end
 
   def get_options 
