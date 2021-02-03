@@ -3,10 +3,10 @@ class CreateRecordConfigs < ActiveRecord::Migration[6.0]
     create_table :record_configs do |t|
       t.string :environment, null: false, default: 'development'
       t.string :scenarios_api_key, null: false
-      t.integer :scenarios_project_key, null: false
+      t.string :scenarios_project_key, null: false
       t.string :scenarios_record_policy, null: false, default: 'any'
       t.string :scenarios_record_match_pattern
-      t.integer :scenarios_scenario_id
+      t.string :scenarios_scenario_key
       t.string :scenarios_url, null: false
       t.string :service_url, null: false
 
