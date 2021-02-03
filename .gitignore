@@ -48,7 +48,7 @@ Thumbs.db
 *.mov
 *.wmv
 
-config/env.yml
+config/record.yml
 .byebug_history
 tmp/*
 db/*sqlite3

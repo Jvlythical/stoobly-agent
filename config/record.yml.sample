@@ -1,6 +1,6 @@
 development:
+  scenarios_api_key: 'yGBxPUzz7T2cQ47ieN6bXptG'
+  scenarios_project_key: 'eyJhbGciOiJub25lIn0.eyJvcmdhbml6YXRpb25faWQiOjIsImlkIjozfQ.'
+  scenarios_record_policy: 'any'
   scenarios_url: 'http://localhost:3000'
-  project_id: 47
-  api_key: 'yGBxPUzz7T2cQ47ieN6bXptG'
   service_url: 'http://localhost:3000'
-  upload_policy: 'any'
