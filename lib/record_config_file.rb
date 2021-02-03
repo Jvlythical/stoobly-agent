@@ -28,4 +28,8 @@ class RecordConfigFile
   def upload_policy
     @config.dig(@env, 'upload_policy' || ENV['SCENARIOS_UPLOAD_POLICY'])
   end
+
+  def sync
+     
+  end
 end

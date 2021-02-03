@@ -14,8 +14,8 @@ ActiveRecord::Schema.define(version: 2021_02_03_073623) do
 
   create_table "record_configs", force: :cascade do |t|
     t.string "environment", default: "development", null: false
-    t.string "scenarios_api_key"
-    t.integer "scenarios_project_id"
+    t.string "scenarios_api_key", null: false
+    t.integer "scenarios_project_key", null: false
     t.string "scenarios_record_policy", default: "any", null: false
     t.string "scenarios_record_match_pattern"
     t.integer "scenarios_scenario_id"
@@ -23,6 +23,7 @@ ActiveRecord::Schema.define(version: 2021_02_03_073623) do
     t.string "service_url", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.index "\"environment\", \"scenarios_project_key\", \"scenarios_scenario_key\"", name: "index_record_configs_on_env_and_project_key_and_scenario_key", unique: true
   end
 
 end
