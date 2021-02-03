@@ -25,12 +25,12 @@ class ScenariosApi
     send(uri, req)
   end
 
-  def request_response(project_id, **query_params)
+  def request_response(project_key, **query_params)
     url = "#{@service_url}#{REQUESTS_ENDPOINT}/response" 
     uri = URI.parse url
-
+    
     params = {
-      project_id: project_id
+      project_id: decode_project_key(project_key)
     }.merge(query_params)
     uri.query = URI.encode_www_form(params)
 
@@ -61,5 +61,17 @@ class ScenariosApi
     {
       X_API_KEY: @api_key
     }
+  end
+
+  def decode_project_key(jwt)
+    token = JWT.decode(jwt, nil, false)
+    payload = token[0]
+    payload['id']
+  end
+
+  def decode_scenario_key(jwt)
+    token = JWT.decode(jwt, nil, false)
+    payload = token[0]
+    payload['id']
   end
 end
