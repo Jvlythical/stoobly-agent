@@ -4,6 +4,7 @@ class ApplicationController < ActionController::API
 
   def route
     start_time = Time.now
+
     api = ScenariosApi.new(Config.instance.scenarios_url, Config.instance.api_key)
     upload_policy = get_upload_policy
 
