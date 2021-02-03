@@ -13,6 +13,7 @@
 ActiveRecord::Schema.define(version: 2021_02_03_073623) do
 
   create_table "record_configs", force: :cascade do |t|
+    t.string "environment", default: "development", null: false
     t.string "scenarios_api_key"
     t.integer "scenarios_project_id"
     t.string "scenarios_record_policy", default: "any", null: false

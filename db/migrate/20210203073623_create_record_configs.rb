@@ -1,6 +1,7 @@
 class CreateRecordConfigs < ActiveRecord::Migration[6.0]
   def change
     create_table :record_configs do |t|
+      t.string :environment, null: false, default: 'development'
       t.string :scenarios_api_key
       t.integer :scenarios_project_id
       t.string :scenarios_record_policy, null: false, default: 'any'
