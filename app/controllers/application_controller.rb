@@ -5,7 +5,7 @@ class ApplicationController < ActionController::API
   def route
     start_time = Time.now
 
-    api = ScenariosApi.new(RecordConfigFile.instance.scenarios_url, RecordConfigFile.instance.api_key)
+    api = ScenariosApi.new(RecordConfigFile.instance.scenarios_url, RecordConfigFile.instance.scenarios_api_key)
     upload_policy = get_upload_policy
 
     case upload_policy
@@ -52,7 +52,7 @@ class ApplicationController < ActionController::API
 
   def eval_request(api)
     query_params = build_query_params
-    api.request_response(RecordConfigFile.instance.project_id, query_params)
+    api.request_response(RecordConfigFile.instance.scenarios_project_key, query_params)
   end
 
   ###
@@ -138,7 +138,7 @@ class ApplicationController < ActionController::API
       joined_request = JoinedRequest.new(request).with_response(res)
       joined_request_string = joined_request.build
       api.request_create(
-        RecordConfigFile.instance.project_id, joined_request_string, importer: 'gor'
+        RecordConfigFile.instance.scenarios_project_key, joined_request_string, importer: 'gor'
       )
     }
   end
@@ -149,7 +149,7 @@ class ApplicationController < ActionController::API
   end
 
   def get_upload_policy
-    request.headers['X-UPLOAD-POLICY'] || RecordConfigFile.instance.upload_policy
+    request.headers['X-UPLOAD-POLICY'] || RecordConfigFile.instance.scenarios_record_policy
   end
 
   def get_service_url

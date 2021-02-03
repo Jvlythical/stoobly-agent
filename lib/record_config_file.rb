@@ -5,31 +5,88 @@ class RecordConfigFile
   include Singleton
 
   def initialize
-    @config = YAML.load_file(File.join(File.dirname(__FILE__), '..', 'config', 'env.yml')) 
-    @env = ENV['RAILS_ENV'] || 'development'
+    @config_file_path = File.join(File.dirname(__FILE__), '..', 'config', 'record.yml')
+    @config = YAML.load_file(@config_file_path) 
+    @environment = ENV['RAILS_ENV'] || 'development'
+  end
+
+  def scenarios_project_key
+    @config.dig(@environment, 'scenarios_project_key') || ENV['SCENARIOS_PROJECT_KEY']
+  end
+
+  def scenarios_api_key
+    @config.dig(@environment, 'scenarios_api_key') || ENV['SCENARIOS_API_KEY']
+  end
+
+  def scenarios_record_match_pattern
+    @config.dig(@environment, 'scenarios_record_match_pattern' || ENV['SCENARIOS_RECORD_MATCH_PATTERN'])
+  end
+
+  def scenarios_record_policy
+    @config.dig(@environment, 'scenarios_record_policy' || ENV['SCENARIOS_RECORD_POLICY'])
   end
 
   def scenarios_url
-    @config.dig(@env, 'scenarios_url') || ENV['SCENARIOS_URL']
-  end
-
-  def project_id
-    @config.dig(@env, 'project_id') || ENV['SCENARIOS_PROJECT_ID']
-  end
-
-  def api_key
-    @config.dig(@env, 'api_key') || ENV['SCENARIOS_API_KEY']
+    @config.dig(@environment, 'scenarios_url') || ENV['SCENARIOS_URL']
   end
 
   def service_url
-    @config.dig(@env, 'service_url') || ENV['SCENARIOS_API_KEY']
-  end
-
-  def upload_policy
-    @config.dig(@env, 'upload_policy' || ENV['SCENARIOS_UPLOAD_POLICY'])
+    @config.dig(@environment, 'service_url') || ENV['SERVICE_URL']
   end
 
   def sync
-     
+    config = find_config 
+    return if config.nil?
+    
+    @config[@environment] = {} if @config[@environment].nil?
+    
+    config_hash = config.as_json
+    ignored_columns = ['id', 'created_at', 'updated_at']
+
+    RecordConfig.column_names.each do |name|
+      next if ignored_columns.include? name
+      @config[@environment][name] = config_hash[name]
+    end
+    
+    File.open(@file_path, 'w') do |fp|
+      YAML.dump(@config, fp)
+    end
+  end
+
+  def sync_to_database
+    config = find_config 
+
+    if config.nil?
+      config = RecordConfig.new(
+        environment: @environment,
+        scenarios_api_key: scenarios_api_key,
+        scenarios_project_key: scenarios_project_key,
+        scenarios_scenario_key: scenarios_scenario_key,
+        scenarios_record_match_pattern: scenarios_record_match_pattern,
+        scenarios_record_policy: upload_record_policy,
+        scenarios_url: scenarios_url,
+        service_url: service_url,
+      )
+
+      config.save
+    else
+      config.update(
+        scenarios_api_key: scenarios_api_key,
+        scenarios_url: scenarios_url,
+        scenarios_record_match_pattern: scenarios_record_match_pattern,
+        scenarios_record_policy: upload_record_policy,
+        service_url: service_url,
+      )
+    end
+  end
+
+  private
+
+  def find_config
+    RecordConfig.find_by(
+      scenarios_project_key: scenarios_project_key,
+      scenarios_scenario_key: scenarios_scenario_key,
+      environment: @environment,
+    )
   end
 end
