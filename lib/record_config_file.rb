@@ -14,6 +14,10 @@ class RecordConfigFile
     @config.dig(@environment, 'scenarios_project_key') || ENV['SCENARIOS_PROJECT_KEY']
   end
 
+  def scenarios_scenario_key
+    @config.dig(@environment, 'scenarios_scenario_key') || ENV['SCENARIOS_SCENARIO_KEY']
+  end
+
   def scenarios_api_key
     @config.dig(@environment, 'scenarios_api_key') || ENV['SCENARIOS_API_KEY']
   end
@@ -34,27 +38,35 @@ class RecordConfigFile
     @config.dig(@environment, 'service_url') || ENV['SERVICE_URL']
   end
 
-  def sync
-    config = find_config 
+  def sync(scenarios_project_key, scenarios_scenario_key = nil)
+    config = RecordConfig.find_by(
+      scenarios_project_key: scenarios_project_key,
+      scenarios_scenario_key: scenarios_scenario_key,
+      environment: @environment,
+    )
     return if config.nil?
     
     @config[@environment] = {} if @config[@environment].nil?
     
     config_hash = config.as_json
-    ignored_columns = ['id', 'created_at', 'updated_at']
+    ignored_columns = ['id', 'environment', 'created_at', 'updated_at']
 
     RecordConfig.column_names.each do |name|
       next if ignored_columns.include? name
       @config[@environment][name] = config_hash[name]
     end
-    
-    File.open(@file_path, 'w') do |fp|
+  
+    File.open(@config_file_path, 'w') do |fp|
       YAML.dump(@config, fp)
     end
   end
 
   def sync_to_database
-    config = find_config 
+    config = RecordConfig.find_by(
+      scenarios_project_key: scenarios_project_key,
+      scenarios_scenario_key: scenarios_scenario_key,
+      environment: @environment,
+    )
 
     if config.nil?
       config = RecordConfig.new(
@@ -78,15 +90,5 @@ class RecordConfigFile
         service_url: service_url,
       )
     end
-  end
-
-  private
-
-  def find_config
-    RecordConfig.find_by(
-      scenarios_project_key: scenarios_project_key,
-      scenarios_scenario_key: scenarios_scenario_key,
-      environment: @environment,
-    )
   end
 end
