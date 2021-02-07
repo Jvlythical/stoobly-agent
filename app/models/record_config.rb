@@ -6,8 +6,8 @@ class RecordConfig < ApplicationRecord
   }
 
   enum scenarios_record_policy: { 
-    record_policy_none: 'none', 
-    record_policy_not_found: 'not_found', 
-    record_policy_any: 'any',
+    record_none: 'record_none', 
+    record_not_found: 'record_not_found', 
+    record_any: 'record_any',
   }
 end
