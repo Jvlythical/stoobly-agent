@@ -5,11 +5,15 @@ class ApplicationController < ActionController::API
   def route
     start_time = Time.now
 
-    api = ScenariosApi.new(RecordConfigFile.instance.scenarios_url, RecordConfigFile.instance.scenarios_api_key)
+    api = ScenariosApi.new(
+      RecordConfigFile.instance.scenarios_url, RecordConfigFile.instance.scenarios_api_key
+    )
+    
     upload_policy = get_upload_policy
+    record_policies = RecordConfig.scenarios_record_policies
 
     case upload_policy
-    when UPLOAD_POLICY[:NOT_FOUND]
+    when record_policies[:record_none], record_policies[:record_not_found]
       res = eval_request(api)
 
       unless res.code == '499'
@@ -41,7 +45,7 @@ class ApplicationController < ActionController::API
     reverse_proxy service_url, options do |config|
       config.on_response do |code, res|
         case upload_policy
-        when UPLOAD_POLICY[:ANY]
+        when record_policies[:record_any] 
           upload_request(api, res) 
         end
       end
@@ -135,10 +139,15 @@ class ApplicationController < ActionController::API
   #
   def upload_request(api, res)
     Thread.new {
-      joined_request = JoinedRequest.new(request).with_response(res)
+      proxy_request = ProxyRequest.new(request, RecordConfigFile.instance.service_url)
+      joined_request = JoinedRequest.new(proxy_request).with_response(res)
+
       joined_request_string = joined_request.build
       api.request_create(
-        RecordConfigFile.instance.scenarios_project_key, joined_request_string, importer: 'gor'
+        RecordConfigFile.instance.scenarios_project_key, joined_request_string, {
+          importer: 'gor',
+          scenario_key: RecordConfigFile.instance.scenarios_scenario_key,
+        }
       )
     }
   end

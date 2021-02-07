@@ -1,14 +1,19 @@
 require_relative 'request_string'
 require_relative 'response_string'
+require_relative 'proxy_request'
 
 class JoinedRequest
   REQUEST_DELIMITTER = '🐵🙈🙉'
-
-  def initialize(request)
+  
+  ###
+  #
+  # @params proxy_request [ProxyRequest]
+  #
+  def initialize(proxy_request)
     @timestamp = Time.now
-    @request = request
-
-    @request_string = RequestString.new(request)
+    @proxy_request = proxy_request
+    
+    @request_string = RequestString.new(proxy_request)
   end
 
   def with_response(response)

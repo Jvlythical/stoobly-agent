@@ -5,9 +5,16 @@ class RequestString
 
   REQUEST_TYPE = 1
   CLRF = "\r\n"
+  
+  ###
+  #
+  # @param proxy_request [ProxyRequest]
+  #
+  def initialize(proxy_request)
+    @request = proxy_request.request
+    @proxy_request = proxy_request
 
-  def initialize(request)
-    @request = request
+
     @lines = []
 
     request_line
@@ -18,12 +25,18 @@ class RequestString
     control
   end
 
+  def get 
+    @lines.join CLRF
+  end
+
+  private
+
   def control
     @lines.unshift "#{REQUEST_TYPE} #{@request_id} #{current_time}"
   end
 
   def request_line
-    @lines.push "#{@request.method} #{@request.url} HTTP/1.1"
+    @lines.push "#{@request.method} #{@proxy_request.url} HTTP/1.1"
   end
 
   def headers
@@ -36,12 +49,6 @@ class RequestString
   def body
     @lines.push "#{CLRF}#{@request.body.read}"
   end
-
-  def get 
-    @lines.join CLRF
-  end
-
-  private
 
   def to_header_case(header)
     toks = header.split('_')
