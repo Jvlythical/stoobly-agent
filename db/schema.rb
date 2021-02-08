@@ -16,8 +16,8 @@ ActiveRecord::Schema.define(version: 2021_02_03_073623) do
     t.string "environment", default: "development", null: false
     t.string "scenarios_api_key", null: false
     t.string "scenarios_project_key", null: false
-    t.string "scenarios_record_policy", default: "any", null: false
-    t.string "scenarios_record_match_pattern"
+    t.string "record_policy", default: "all", null: false
+    t.string "record_match_pattern"
     t.string "scenarios_scenario_key"
     t.string "scenarios_url", null: false
     t.string "service_url", null: false

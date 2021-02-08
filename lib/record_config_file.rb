@@ -10,6 +10,10 @@ class RecordConfigFile
     @environment = ENV['RAILS_ENV'] || 'development'
   end
 
+  def mode
+    @config.dig(@environment, 'mode') || ENV['MODE'] || MODE[:PROXY]
+  end
+
   def scenarios_project_key
     @config.dig(@environment, 'scenarios_project_key') || ENV['SCENARIOS_PROJECT_KEY']
   end
@@ -22,12 +26,12 @@ class RecordConfigFile
     @config.dig(@environment, 'scenarios_api_key') || ENV['SCENARIOS_API_KEY']
   end
 
-  def scenarios_record_match_pattern
-    @config.dig(@environment, 'scenarios_record_match_pattern' || ENV['SCENARIOS_RECORD_MATCH_PATTERN'])
+  def record_match_pattern
+    @config.dig(@environment, 'record_match_pattern' || ENV['RECORD_MATCH_PATTERN'])
   end
 
-  def scenarios_record_policy
-    @config.dig(@environment, 'scenarios_record_policy' || ENV['SCENARIOS_RECORD_POLICY'])
+  def record_policy
+    @config.dig(@environment, 'record_policy' || ENV['RECORD_POLICY'])
   end
 
   def scenarios_url
