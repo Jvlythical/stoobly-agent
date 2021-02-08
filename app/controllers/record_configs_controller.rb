@@ -6,6 +6,11 @@ class RecordConfigsController < ApplicationController
     @record_configs = begin
       RecordConfig.all.where(scenarios_project_key: params[:project_key])
     end
+    
+    record_policies = RecordConfig.record_policies
+    @record_configs.each do |config|
+      config.record_policy = record_policies[config.record_policy]
+    end
 
     render json: @record_configs
   end
@@ -50,7 +55,7 @@ class RecordConfigsController < ApplicationController
   end
 
   def policies
-    render json: RecordConfig.scenarios_record_policies.values, status: :ok
+    render json: RecordConfig.record_policies, status: :ok
   end
 
   private
@@ -64,8 +69,8 @@ class RecordConfigsController < ApplicationController
       params.require(:record_config).permit( 
         :scenarios_api_key, 
         :scenarios_project_key, 
-        :scenarios_record_policy,
-        :scenarios_record_match_pattern,
+        :record_policy,
+        :record_match_pattern,
         :scenarios_scenario_key,
         :service_url
       )
