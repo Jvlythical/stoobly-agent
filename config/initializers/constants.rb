@@ -1,7 +1,7 @@
 MOCK_POLICY = {
-  ALL: 'all',
-  NONE: 'none',
-  FOUND: 'found',
+  ALL: 'mock_all',
+  NONE: 'mock_none',
+  FOUND: 'mock_found',
 }
 
 RECORD_POLICY = {
@@ -10,13 +10,19 @@ RECORD_POLICY = {
   NOT_FOUND: 'record_not_found',
 }
 
-CUSTOM_RESPONSE_CODES = {
-  NOT_FOUND: '499'
+ENVIRONMENT = {
+  TEST: 'environment_test',
+  DEVELOPMENT: 'environment_development',
+  PRODUCTION: 'environment_production',
 }
 
 MODE = {
   MOCK: 'mock',
-  PROXY: 'proxy',
+  RECORD: 'record',
+}
+
+CUSTOM_RESPONSE_CODES = {
+  NOT_FOUND: '499'
 }
 
 CUSTOM_HEADERS = {
