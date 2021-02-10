@@ -1,0 +1,10 @@
+service_url: 'http://localhost:3000'
+mock_policy: 'all'
+mock_match_pattern: []
+record_policy: 'all'
+record_match_pattern: []
+scenarios:
+    url: 'http://localhost:3000'
+    api_key: ''
+    project_key: ''
+    scenario_key: ''

@@ -1,0 +1,13 @@
+---
+:mode: record
+:service_url: http://localhost:3000
+:mock_policy: all
+:mock_match_patterns: []
+:record_policy: none
+:record_match_patterns:
+- adf
+:scenarios:
+  :url: http://localhost:3000
+  :api_key: 5UUvyYLtVesWYBRwDUpaDxay
+  :project_key: eyJhbGciOiJub25lIn0.eyJvcmdhbml6YXRpb25faWQiOjIsImlkIjoyfQ.
+  :scenario_key: 

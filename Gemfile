@@ -27,6 +27,8 @@ gem 'rack-cors'
 
 gem 'jwt', '~> 2.2.1'
 
+gem 'config'
+
 group :development, :test, :staging do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
