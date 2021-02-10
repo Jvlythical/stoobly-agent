@@ -6,16 +6,14 @@ class ApplicationController < ActionController::API
     start_time = Time.now
 
     api = ScenariosApi.new(
-      RecordConfigFile.instance.scenarios_url, RecordConfigFile.instance.scenarios_api_key
+      Settings.scenarios.url, Settings.scenarios.api_key
     )
 
-    modes = RecordConfig.modes
-    
-    mode = RecordConfigFile.instance.mode
+    mode = Settings.mode
     case mode
-    when modes[:mode_proxy]
+    when MODE[:RECORD]
       # 
-      # Try forwarding the request to the service specified by RecordConfigFile.instance.service_url
+      # Try forwarding the request to the service specified by Settings.service_url
       #
       service_url = get_service_url
       unless service_url
@@ -47,19 +45,18 @@ class ApplicationController < ActionController::API
           end
         end
       end
-    when modes[:mode_mock] 
-      mock_policies = RecordConfig.mock_policies
+    when MODE[:MOCK]
       mock_policy = get_mock_policy()
 
       case mock_policy
-      when mock_policies[:mock_none]
+      when MOCK_POLICY[:NONE]
         reverse_proxy service_url, get_options()
-      when mock_policies[:mock_any]
+      when MOCK_POLICY[:ANY]
         res = eval_request(api)
         simulate_latency(res[CUSTOM_HEADERS[:RESPONSE_LATENCY]], start_time)
 
         return pass_on(res)
-      when mock_policies[:mock_found]
+      when MOCK_POLICY[:FOUND]
         res = eval_request(api)
 
         if res.code == CUSTOM_RESPONSE_CODES[:NOT_FOUND]
@@ -91,7 +88,7 @@ class ApplicationController < ActionController::API
   def eval_request(api)
     query_params = build_query_params
     api.request_response(
-      RecordConfigFile.instance.scenarios_project_key, query_params
+      Settings.scenarios.project_key, query_params
     )
   end
 
@@ -176,14 +173,14 @@ class ApplicationController < ActionController::API
   #
   def upload_request(api, res)
     Thread.new {
-      proxy_request = ProxyRequest.new(request, RecordConfigFile.instance.service_url)
+      proxy_request = ProxyRequest.new(request, Settings.service_url)
       joined_request = JoinedRequest.new(proxy_request).with_response(res)
 
       joined_request_string = joined_request.build
       api.request_create(
-        RecordConfigFile.instance.scenarios_project_key, joined_request_string, {
+        Settings.scenarios.project_key, joined_request_string, {
           importer: 'gor',
-          scenario_key: RecordConfigFile.instance.scenarios_scenario_key,
+          scenario_key: Settings.scenarios.scenario_key,
         }
       )
     }
@@ -195,11 +192,11 @@ class ApplicationController < ActionController::API
   end
 
   def get_upload_policy
-    request.headers[CUSTOM_HEADERS[:RECORD_POLICY]] || RecordConfigFile.instance.record_policy
+    request.headers[CUSTOM_HEADERS[:RECORD_POLICY]] || Settings.record_policy
   end
 
   def get_service_url
-    request.headers[CUSTOM_HEADERS[:SERVICE_URL]] || RecordConfigFile.instance.service_url
+    request.headers[CUSTOM_HEADERS[:SERVICE_URL]] || Settings.service_url
   end
 
   def get_options 
