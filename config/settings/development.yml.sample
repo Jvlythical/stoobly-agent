@@ -1,3 +1,4 @@
+mode: 'record'
 service_url: 'http://localhost:3000'
 mock_policy: 'all'
 mock_match_pattern: []
