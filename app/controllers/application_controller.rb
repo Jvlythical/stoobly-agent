@@ -51,7 +51,7 @@ class ApplicationController < ActionController::API
       case mock_policy
       when MOCK_POLICY[:NONE]
         reverse_proxy service_url, get_options()
-      when MOCK_POLICY[:ANY]
+      when MOCK_POLICY[:ALL]
         res = eval_request(api)
         simulate_latency(res[CUSTOM_HEADERS[:RESPONSE_LATENCY]], start_time)
 
@@ -193,6 +193,10 @@ class ApplicationController < ActionController::API
 
   def get_upload_policy
     request.headers[CUSTOM_HEADERS[:RECORD_POLICY]] || Settings.record_policy
+  end
+
+  def get_mock_policy
+    request.headers[CUSTOM_HEADERS[:MOCK_POLICY]] || Settings.mock_policy
   end
 
   def get_service_url
