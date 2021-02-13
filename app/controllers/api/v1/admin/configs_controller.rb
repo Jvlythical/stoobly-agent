@@ -1,6 +1,6 @@
 require 'yaml'
 
-class Api::V1::Admin::SettingsController < ApplicationController
+class Api::V1::Admin::ConfigsController < ApplicationController
   # GET /api/v1/admin/settings
   def show
     render json: Settings, status: :ok
@@ -31,6 +31,13 @@ class Api::V1::Admin::SettingsController < ApplicationController
     when MODE[:RECORD]
       render json: RECORD_POLICY, status: :ok
     end
+  end
+
+  def modes_show
+    render json: {
+      active: Settings.mode,
+      list: MODE.values, 
+    }, status: :ok
   end
 
   private
