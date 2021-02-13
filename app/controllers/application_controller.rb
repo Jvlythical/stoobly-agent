@@ -4,6 +4,7 @@ class ApplicationController < ActionController::API
 
   def route
     start_time = Time.now
+    service_url = get_service_url
 
     api = ScenariosApi.new(
       Settings.scenarios.url, Settings.scenarios.api_key
@@ -15,9 +16,8 @@ class ApplicationController < ActionController::API
       # 
       # Try forwarding the request to the service specified by Settings.service_url
       #
-      service_url = get_service_url
       unless service_url
-        raise 'config/env.yml service_url is not set'
+        raise 'config service_url is not set'
       end 
 
       disable_web_cache()
