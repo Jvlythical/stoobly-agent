@@ -8,10 +8,9 @@ class Api::V1::Admin::ConfigsController < ApplicationController
 
   # PUT /api/v1/admin/settings
   def update
-    return unless required_params?(params, :settings)
-    
     settings = Settings.to_hash
-    hash_merge settings, params[:settings]
+
+    hash_merge settings, params[:config]
 
     settings_path = Rails.root.join('config', 'settings', "#{Rails.env}.yml").to_s
 
