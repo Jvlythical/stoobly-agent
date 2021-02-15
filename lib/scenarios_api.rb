@@ -16,7 +16,7 @@ class ScenariosApi
 
     set_headers(req) 
 
-    unless params[:scenario_key].nil?
+    unless params[:scenario_key].nil? || params[:scenario_key].empty?
       scenario_id = decode_scenario_key(params[:scenario_key])
       params[:scenario_id] = scenario_id
       params.delete :scenario_key
@@ -36,7 +36,7 @@ class ScenariosApi
     url = "#{@service_url}#{REQUESTS_ENDPOINT}/response" 
     uri = URI.parse url
 
-    unless query_params[:scenario_key].nil?
+    unless query_params[:scenario_key].nil? || params[:scenario_key].empty?
       scenario_id = decode_scenario_key(query_params[:scenario_key])
       query_params[:scenario_id] = scenario_id
       query_params.delete :scenario_key
