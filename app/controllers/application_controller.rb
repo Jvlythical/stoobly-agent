@@ -26,7 +26,12 @@ class ApplicationController < ActionController::API
 
       reverse_proxy service_url, options do |config|
         config.on_response do |code, res|
-          upload_policy = get_upload_policy
+          if path_matches?(Settings.record_match_patterns)
+            upload_policy = get_upload_policy
+          else
+            # If the request path does not match accepted paths, do not record
+            upload_policy = RECORD_POLICY[:NONE]
+          end
 
           case upload_policy
           when RECORD_POLICY[:ALL]
@@ -46,7 +51,12 @@ class ApplicationController < ActionController::API
         end
       end
     when MODE[:MOCK]
-      mock_policy = get_mock_policy()
+      if path_matches(Settings.mock_match_patterns)
+        mock_policy = get_mock_policy()
+      else
+        # If the request path does not match accepted paths, do not mock
+        mock_policy = MOCK_POLICY[:NONE]
+      end
 
       case mock_policy
       when MOCK_POLICY[:NONE]
@@ -79,10 +89,26 @@ class ApplicationController < ActionController::API
     end
   end
 
-  private
-
   def bad_request(message)
     render plain: message, status: 400
+  end
+
+  private
+  
+  ###
+  #
+  # @param patterns [Array<string>]
+  #
+  def path_matches?(patterns)
+    return true if patterns.nil?
+    
+    path = request.path
+ 
+    patterns.each do |pattern|
+      return true if path.match?(Regexp.new str)
+    end
+    
+    false
   end
 
   def eval_request(api)
