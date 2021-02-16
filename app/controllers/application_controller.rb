@@ -51,7 +51,7 @@ class ApplicationController < ActionController::API
         end
       end
     when MODE[:MOCK]
-      if path_matches(Settings.mock_match_patterns)
+      if path_matches?(Settings.mock_match_patterns)
         mock_policy = get_mock_policy()
       else
         # If the request path does not match accepted paths, do not mock
@@ -105,7 +105,7 @@ class ApplicationController < ActionController::API
     path = request.path
  
     patterns.each do |pattern|
-      return true if path.match?(Regexp.new str)
+      return true if path.match?(Regexp.new pattern)
     end
     
     false
