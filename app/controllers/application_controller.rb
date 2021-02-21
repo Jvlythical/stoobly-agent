@@ -108,7 +108,7 @@ class ApplicationController < ActionController::API
       return true if path.match?(Regexp.new pattern)
     end
     
-    false
+    patterns.length == 0
   end
 
   def eval_request(api)
@@ -199,7 +199,7 @@ class ApplicationController < ActionController::API
   #
   def upload_request(api, res)
     Thread.new {
-      proxy_request = ProxyRequest.new(request, Settings.service_url)
+      proxy_request = ProxyRequest.new(request, get_service_url)
       joined_request = JoinedRequest.new(proxy_request).with_response(res)
 
       joined_request_string = joined_request.build
