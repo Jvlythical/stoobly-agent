@@ -24,7 +24,7 @@ class Api::V1::Admin::ConfigsController < ApplicationController
   end
 
   def policies_show
-    case Settings.mode
+    case Settings.mode.active
     when MODE[:MOCK]
       render json: MOCK_POLICY, status: :ok
     when MODE[:RECORD]
@@ -33,8 +33,11 @@ class Api::V1::Admin::ConfigsController < ApplicationController
   end
 
   def modes_show
+    active_mode = Settings.mode.active
+
     render json: {
-      active: Settings.mode,
+      active: active_mode,
+      enabled: Settings.mode.dig(active_mode, 'enabled'),
       list: MODE.values, 
     }, status: :ok
   end

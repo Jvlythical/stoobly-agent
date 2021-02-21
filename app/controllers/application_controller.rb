@@ -10,7 +10,7 @@ class ApplicationController < ActionController::API
       Settings.scenarios.url, Settings.scenarios.api_key
     )
 
-    mode = Settings.mode
+    mode = Settings.mode.active
     case mode
     when MODE[:RECORD]
       # 
@@ -26,8 +26,8 @@ class ApplicationController < ActionController::API
 
       reverse_proxy service_url, options do |config|
         config.on_response do |code, res|
-          if path_matches?(Settings.record_match_patterns)
-            upload_policy = get_upload_policy
+          if Settings.mode.record.enabled && path_matches?(Settings.mode.record.match_patterns)
+            upload_policy = get_record_policy
           else
             # If the request path does not match accepted paths, do not record
             upload_policy = RECORD_POLICY[:NONE]
@@ -51,7 +51,7 @@ class ApplicationController < ActionController::API
         end
       end
     when MODE[:MOCK]
-      if path_matches?(Settings.mock_match_patterns)
+      if Settings.mode.mock.enabled && path_matches?(Settings.mode.mock.match_patterns)
         mock_policy = get_mock_policy()
       else
         # If the request path does not match accepted paths, do not mock
@@ -217,16 +217,16 @@ class ApplicationController < ActionController::API
     request.headers['IF-NONE-MATCH'] = nil
   end
 
-  def get_upload_policy
-    request.headers[CUSTOM_HEADERS[:RECORD_POLICY]] || Settings.record_policy
+  def get_record_policy
+    request.headers[CUSTOM_HEADERS[:RECORD_POLICY]] || Settings.mode.record.policy
   end
 
   def get_mock_policy
-    request.headers[CUSTOM_HEADERS[:MOCK_POLICY]] || Settings.mock_policy
+    request.headers[CUSTOM_HEADERS[:MOCK_POLICY]] || Settings.mode.mock.policy
   end
 
   def get_service_url
-    request.headers[CUSTOM_HEADERS[:SERVICE_URL]] || Settings.service_url
+    request.headers[CUSTOM_HEADERS[:SERVICE_URL]] || Settings.mode.record.service_url
   end
 
   def get_options 
