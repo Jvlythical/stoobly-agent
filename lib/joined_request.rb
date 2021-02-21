@@ -30,6 +30,10 @@ class JoinedRequest
 
   def build 
     raise 'Missing response' if @response_string.nil?
-    [@request_string.get, @response_string.get].join(REQUEST_DELIMITTER)
+
+    request_string = @request_string.get.to_s.force_encoding('UTF-8')
+    response_string = @response_string.get.to_s.force_encoding('UTF-8')
+
+    [request_string, response_string].join(REQUEST_DELIMITTER)
   end
 end
