@@ -47,6 +47,7 @@ class RequestString
   end
 
   def body
+    @request.body.rewind
     @lines.push "#{CLRF}#{@request.body.read}"
   end
 
