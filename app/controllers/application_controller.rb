@@ -63,6 +63,11 @@ class ApplicationController < ActionController::API
         reverse_proxy service_url, get_options()
       when MOCK_POLICY[:ALL]
         res = eval_request(api)
+
+        if res.code == CUSTOM_RESPONSE_CODES[:IGNORE_COMPONENTS]
+          res = eval_request(api, res.body)
+        end
+
         simulate_latency(res[CUSTOM_HEADERS[:RESPONSE_LATENCY]], start_time)
 
         return pass_on(res)
@@ -111,8 +116,18 @@ class ApplicationController < ActionController::API
     patterns.length == 0
   end
 
-  def eval_request(api)
-    query_params = build_query_params
+  def eval_request(api, ignored_components_json = nil)
+    ignored_components = []
+
+    unless ignored_components_json.nil?
+      begin
+        ignored_components = JSON.parse ignored_components_json
+      rescue JSON::ParserError
+        # Do nothing
+      end
+    end
+
+    query_params = build_query_params(ignored_components)
     api.request_response(
       Settings.scenarios.project_key, query_params
     )
@@ -150,21 +165,27 @@ class ApplicationController < ActionController::API
   # 
   # Formats request into parameters expected by scenarios api
   #
+  # @param ignored_components [Array<Hash>]
+  #
   # @return [Hash] query parameters to pass to scenarios api
   #
-  def build_query_params
-    hashed_request = HashedRequestDecorator.new(request)
+  def build_query_params(ignored_components = [])
+    hashed_request = begin
+      HashedRequestDecorator.new(request).
+        with_ignored_components(ignored_components)
+    end
 
-    query_param_name_hash = hashed_request.query_param_name_hash
-    query_param_value_hash = hashed_request.query_param_value_hash
+    query_params_hash = hashed_request.query_params_hash
+    body_params_hash = hashed_request.body_params_hash
     body_text_hash = hashed_request.body_text_hash
 
     query_params = {}
     query_params[:path] = request.path
     query_params[:method] = request.method
-    query_params[:query_param_names_hash] = query_param_name_hash unless query_param_name_hash.empty?
-    query_params[:query_param_values_hash] = query_param_value_hash unless query_param_value_hash.empty?
+    query_params[:query_params_hash] = query_params_hash unless query_params_hash.empty?
+    query_params[:body_params_hash] = body_params_hash unless body_params_hash.empty?
     query_params[:body_text_hash] = body_text_hash unless body_text_hash.empty?
+    query_params[:retry] = 1 unless ignored_components.empty?
 
     query_params
   end
