@@ -11,6 +11,8 @@ class RequestBodyParser
   #
   # @param request [ActionDispatch::Request]
   #
+  # @return [Hash]
+  #
   def parse(request)
     request.body.rewind
     content = request.body.read
@@ -37,10 +39,18 @@ class RequestBodyParser
   private
 
   def parse_json(content)
-    JSON.parse content
+    begin
+      JSON.parse content
+    rescue => err
+      {}
+    end
   end
 
   def parse_www_form_urlencoded(content)
-    URI.decode_www_form(content)
+    begin
+      URI.decode_www_form(content)
+    rescue => err
+      {}
+    end
   end
 end
