@@ -4,15 +4,17 @@ class ApplicationController < ActionController::API
 
   def route
     start_time = Time.now
-    service_url = get_service_url
 
     api = ScenariosApi.new(
-      Settings.scenarios.url, Settings.scenarios.api_key
+      Settings.api_url, Settings.api_key
     )
 
     mode = Settings.mode.active
     case mode
     when MODE[:RECORD]
+      settings = Settings.mode.record
+      service_url = get_service_url(settings)
+
       # 
       # Try forwarding the request to the service specified by Settings.service_url
       #
@@ -26,7 +28,7 @@ class ApplicationController < ActionController::API
 
       reverse_proxy service_url, options do |config|
         config.on_response do |code, res|
-          if Settings.mode.record.enabled && path_matches?(Settings.mode.record.match_patterns)
+          if settings.enabled && path_matches?(settings.match_patterns)
             upload_policy = get_record_policy
           else
             # If the request path does not match accepted paths, do not record
@@ -35,11 +37,11 @@ class ApplicationController < ActionController::API
 
           case upload_policy
           when RECORD_POLICY[:ALL]
-            upload_request(api, res) 
+            upload_request(api, settings, res) 
           when RECORD_POLICY[:NOT_FOUND]
             res = eval_request(api)
 
-            upload_request(api, res) if res.code == CUSTOM_RESPONSE_CODES[:NOT_FOUND]
+            upload_request(api, settings, res) if res.code == CUSTOM_RESPONSE_CODES[:NOT_FOUND]
           when RECORD_POLICY[:NONE]
             # Do nothing
           else
@@ -51,7 +53,10 @@ class ApplicationController < ActionController::API
         end
       end
     when MODE[:MOCK]
-      if Settings.mode.mock.enabled && path_matches?(Settings.mode.mock.match_patterns)
+      settings = Settings.mode.mock
+      service_url = get_service_url(settings)
+
+      if settings.enabled && path_matches?(settings.match_patterns)
         mock_policy = get_mock_policy()
       else
         # If the request path does not match accepted paths, do not mock
@@ -62,17 +67,17 @@ class ApplicationController < ActionController::API
       when MOCK_POLICY[:NONE]
         reverse_proxy service_url, get_options()
       when MOCK_POLICY[:ALL]
-        res = eval_request(api)
+        res = eval_request(api, settings)
 
         if res.code == CUSTOM_RESPONSE_CODES[:IGNORE_COMPONENTS]
-          res = eval_request(api, res.body)
+          res = eval_request(api, settings, res.body)
         end
 
         simulate_latency(res[CUSTOM_HEADERS[:RESPONSE_LATENCY]], start_time)
 
         return pass_on(res)
       when MOCK_POLICY[:FOUND]
-        res = eval_request(api)
+        res = eval_request(api, settings)
 
         if res.code == CUSTOM_RESPONSE_CODES[:NOT_FOUND]
           reverse_proxy service_url, get_options()
@@ -115,8 +120,14 @@ class ApplicationController < ActionController::API
     
     patterns.length == 0
   end
-
-  def eval_request(api, ignored_components_json = nil)
+  
+  ###
+  #
+  # @param api [ScenariosApi]
+  # @param settings [Settings.mode.mock | Settings.mode.record]
+  # @param ignored_components_json [String] JSON string
+  #
+  def eval_request(api, settings, ignored_components_json = nil)
     ignored_components = []
 
     unless ignored_components_json.nil?
@@ -129,7 +140,7 @@ class ApplicationController < ActionController::API
 
     query_params = build_query_params(ignored_components)
     api.request_response(
-      Settings.scenarios.project_key, query_params
+      settings.project_key, query_params
     )
   end
 
@@ -218,16 +229,21 @@ class ApplicationController < ActionController::API
   #
   # Upon receiving a response, create the request in API for future use
   #
-  def upload_request(api, res)
+  # @param api [ScenariosApi]
+  # @param settings [Settings.mode.mock | Settings.mode.record]
+  # @param res [Net::HTTP::Response]
+  #
+  def upload_request(api, settings, res)
     Thread.new {
-      proxy_request = ProxyRequest.new(request, get_service_url)
+      service_url = get_service_url(settings)
+      proxy_request = ProxyRequest.new(request, service_url)
       joined_request = JoinedRequest.new(proxy_request).with_response(res)
 
       joined_request_string = joined_request.build
       api.request_create(
-        Settings.scenarios.project_key, joined_request_string, {
+        settings.project_key, joined_request_string, {
           importer: 'gor',
-          scenario_key: Settings.scenarios.scenario_key,
+          scenario_key: settings.scenario_key,
         }
       )
     }
@@ -246,8 +262,8 @@ class ApplicationController < ActionController::API
     request.headers[CUSTOM_HEADERS[:MOCK_POLICY]] || Settings.mode.mock.policy
   end
 
-  def get_service_url
-    request.headers[CUSTOM_HEADERS[:SERVICE_URL]] || Settings.mode.record.service_url
+  def get_service_url(settings)
+    request.headers[CUSTOM_HEADERS[:SERVICE_URL]] || settings.service_url
   end
 
   def get_options 
