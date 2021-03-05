@@ -263,7 +263,14 @@ class ApplicationController < ActionController::API
   end
 
   def get_service_url(settings)
-    request.headers[CUSTOM_HEADERS[:SERVICE_URL]] || settings.service_url
+    service_url = request.headers[CUSTOM_HEADERS[:SERVICE_URL]] 
+    return service_url if service_url
+
+    unless settings.service_url.nil? || settings.service_ur.empty?
+      return settings.service_url
+    end
+    
+    "#{request.protocol}#{request.host_with_port}"
   end
 
   def get_options 
