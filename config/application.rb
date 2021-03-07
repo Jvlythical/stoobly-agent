@@ -39,5 +39,8 @@ module ScenariosMockApi
 
     # Eagerly load the lib/ folder. Folder often contains useful utility methods.
     config.eager_load_paths << Rails.root.join('lib')
+    
+    # Accept all requests
+    config.hosts << /.*/
   end
 end
