@@ -266,7 +266,7 @@ class ApplicationController < ActionController::API
     service_url = request.headers[CUSTOM_HEADERS[:SERVICE_URL]] 
     return service_url if service_url
 
-    unless settings.service_url.nil? || settings.service_ur.empty?
+    unless settings.service_url.nil? || settings.service_url.empty?
       return settings.service_url
     end
     
