@@ -34,11 +34,38 @@ class Api::V1::Admin::ConfigsController < ApplicationController
 
   def modes_show
     active_mode = Settings.mode.active
+    
+    project_name = nil
+    scenario_name = nil
+    
+    mock = {}
+    project = ScenariosApi.decode_project_key(Settings.mode.mock.project_key)
+    mock[:project_id] = project['id']
+    
+    scenario_key = Settings.mode.mock.scenario_key
+    unless scenario_key.to_s.empty?
+      scenario = ScenariosApi.decode_scenario_key(scenario_key)
+      mock[:scenario_id] = scenario['id']
+    end
+
+    record = {}
+    project = ScenariosApi.decode_project_key(Settings.mode.record.project_key)
+    record[:project_id] = project['id']
+
+    scenario_key = Settings.mode.record.scenario_key
+    unless scenario_key.to_s.empty?
+      scenario = ScenariosApi.decode_scenario_key(scenario_key)
+      record[:scenario_id] = scenario['id']
+    end
 
     render json: {
       active: active_mode,
+      details: {
+        mock: mock,
+        record: record,
+      },
       enabled: Settings.mode.dig(active_mode, 'enabled'),
-      list: MODE.values, 
+      list: MODE.values,
     }, status: :ok
   end
 
