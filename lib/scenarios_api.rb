@@ -8,6 +8,18 @@ class ScenariosApi
     @api_key = api_key 
   end
 
+  def self.decode_project_key(jwt)
+    token = JWT.decode(jwt, nil, false)
+    payload = token[0]
+    payload
+  end
+
+  def self.decode_scenario_key(jwt)
+    token = JWT.decode(jwt, nil, false)
+    payload = token[0]
+    payload
+  end
+
   def request_create(project_key, requests, **params)
     url = "#{@service_url}#{REQUESTS_ENDPOINT}" 
     uri = URI.parse(url)
@@ -17,13 +29,13 @@ class ScenariosApi
     set_headers(req) 
 
     unless params[:scenario_key].nil? || params[:scenario_key].empty?
-      scenario_id = decode_scenario_key(params[:scenario_key])
+      scenario_id = decode_scenario_key(params[:scenario_key])['id']
       params[:scenario_id] = scenario_id
       params.delete :scenario_key
     end
 
     body = {
-      project_id: decode_project_key(project_key),
+      project_id: decode_project_key(project_key)['id'],
       requests: requests,
     }.merge(params)
 
@@ -37,13 +49,13 @@ class ScenariosApi
     uri = URI.parse url
 
     unless query_params[:scenario_key].nil? || params[:scenario_key].empty?
-      scenario_id = decode_scenario_key(query_params[:scenario_key])
+      scenario_id = decode_scenario_key(query_params[:scenario_key])['id']
       query_params[:scenario_id] = scenario_id
       query_params.delete :scenario_key
     end
     
     params = {
-      project_id: decode_project_key(project_key)
+      project_id: decode_project_key(project_key)['id']
     }.merge(query_params)
 
     uri.query = URI.encode_www_form(params)
@@ -75,17 +87,5 @@ class ScenariosApi
     {
       X_API_KEY: @api_key
     }
-  end
-
-  def decode_project_key(jwt)
-    token = JWT.decode(jwt, nil, false)
-    payload = token[0]
-    payload['id']
-  end
-
-  def decode_scenario_key(jwt)
-    token = JWT.decode(jwt, nil, false)
-    payload = token[0]
-    payload['id']
   end
 end
