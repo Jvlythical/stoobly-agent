@@ -1,3 +1,5 @@
+require 'base64'
+require 'json'
 require 'net/http'
 
 class ScenariosApi
@@ -8,16 +10,32 @@ class ScenariosApi
     @api_key = api_key 
   end
 
-  def self.decode_project_key(jwt)
-    token = JWT.decode(jwt, nil, false)
-    payload = token[0]
-    payload
+  def self.decode_project_key(key)
+    begin
+      key = Base64.decode64(key)
+    rescue => err
+      return {}
+    end
+
+    begin
+      return JSON.parse(key)
+    rescue => err
+      return {}
+    end
   end
 
   def self.decode_scenario_key(jwt)
-    token = JWT.decode(jwt, nil, false)
-    payload = token[0]
-    payload
+    begin
+      key = Base64.decode64(key)
+    rescue => err
+      return {}
+    end
+
+    begin
+      return JSON.parse(key)
+    rescue => err
+      return {}
+    end
   end
 
   def request_create(project_key, requests, **params)
