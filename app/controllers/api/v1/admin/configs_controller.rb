@@ -8,7 +8,7 @@ class Api::V1::Admin::ConfigsController < ApplicationController
 
   # PUT /api/v1/admin/settings
   def update
-    settings = Settings.to_hash
+    settings = Settings.to_hash.deep_stringify_keys
 
     hash_merge settings, params[:config]
 
@@ -16,6 +16,10 @@ class Api::V1::Admin::ConfigsController < ApplicationController
 
     File.open(settings_path, 'w') do |fp|
       YAML.dump(settings, fp)
+    end
+    
+    if Settings.proxy_config_path
+      File.write Settings.proxy_config_path, settings.to_yaml
     end
 
     Settings.reload!
