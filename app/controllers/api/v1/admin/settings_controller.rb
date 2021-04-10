@@ -1,6 +1,6 @@
 require 'yaml'
 
-class Api::V1::Admin::ConfigsController < ApplicationController
+class Api::V1::Admin::SettingsController < ApplicationController
   # GET /api/v1/admin/settings
   def show
     render json: Settings, status: :ok

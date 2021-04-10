@@ -4,11 +4,11 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       namespace :admin do
-        get 'configs/policies', to: 'configs#policies_show'
-        get 'configs/modes', to: 'configs#modes_show'
+        get 'configs/policies', to: 'settings#policies_show'
+        get 'configs/modes', to: 'settings#modes_show'
 
-        get 'configs', to: 'configs#show'
-        put 'configs', to: 'configs#update'
+        get 'configs', to: 'settings#show'
+        put 'configs', to: 'settings#update'
       end
     end
   end
