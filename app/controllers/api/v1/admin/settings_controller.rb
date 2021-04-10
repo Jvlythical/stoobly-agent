@@ -10,7 +10,7 @@ class Api::V1::Admin::SettingsController < ApplicationController
   def update
     settings = Settings.to_hash.deep_stringify_keys
 
-    hash_merge settings, params[:config]
+    hash_merge settings, params[:setting]
 
     settings_path = Rails.root.join('config', 'settings', "#{Rails.env}.yml").to_s
 
