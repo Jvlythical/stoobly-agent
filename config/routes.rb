@@ -9,6 +9,9 @@ Rails.application.routes.draw do
 
         get 'configs', to: 'settings#show'
         put 'configs', to: 'settings#update'
+
+        get 'statuses/:id', to: 'statuses#show'
+        put 'statuses/:id', to: 'statuses#update'
       end
     end
   end
