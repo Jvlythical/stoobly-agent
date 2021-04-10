@@ -7,8 +7,8 @@ Rails.application.routes.draw do
         get 'configs/policies', to: 'configs#policies_show'
         get 'configs/modes', to: 'configs#modes_show'
 
-        get 'configs', to: 'settings#show'
-        put 'configs', to: 'settings#update'
+        get 'configs', to: 'configs#show'
+        put 'configs', to: 'configs#update'
 
         get 'statuses/:id', to: 'statuses#show'
         put 'statuses/:id', to: 'statuses#update'
