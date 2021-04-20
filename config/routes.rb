@@ -16,5 +16,9 @@ Rails.application.routes.draw do
     end
   end
 
-  match '*path', to: 'application#route', via: :all
+  #match '*path', to: 'application#route', via: :all
+
+  get '*path', to: 'application#fallback_index_html', constraints: ->(request) do
+    !request.xhr? && request.format.html?
+  end
 end
