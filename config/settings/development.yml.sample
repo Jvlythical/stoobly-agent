@@ -1,11 +1,20 @@
-mode: 'record'
-service_url: 'http://localhost:3000'
-mock_policy: 'all'
-mock_match_pattern: []
-record_policy: 'all'
-record_match_pattern: []
-scenarios:
-    url: 'http://localhost:3000'
-    api_key: ''
+agent_url: http://localhost:3001
+api_url: http://localhost:3000
+api_key: ''
+mode:
+  active: record
+  record:
+    match_patterns: []
+    enabled: true
+    policy: all
+    service_url: ''
     project_key: ''
     scenario_key: ''
+  mock:
+    match_patterns: []
+    enabled: false
+    policy: all
+    project_key: ''
+    scenario_key: ''
+    service_url: http://localhost:3000
+proxy_config_path: '<REPO-PATH>/scenarios-proxy/config/settings.yml'
