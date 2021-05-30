@@ -30,7 +30,7 @@ class Settings:
         else:
             cwd = os.path.dirname(os.path.realpath(__file__))
 
-            self.config_file_path = os.path.join(cwd, '..', 'config', 'settings.yml')
+            self.config_file_path = os.path.join(cwd, '..', '..', '..', 'config', 'settings.yml')
 
             self.__load_config()
             self.__observe_config()
