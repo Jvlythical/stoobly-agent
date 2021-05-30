@@ -1,23 +1,23 @@
 ---
 agent_url: http://localhost:3001
 api_url: http://localhost:3000
-api_key: ''
+api_key: vGxx1SgChtkVzrqCRtaZKgKs
 mode:
   active: record
   record:
-    enabled: false
+    enabled: true
     exclude_patterns: []
     include_patterns: []
     policy: all
     service_url: ''
-    project_key: ''
+    project_key: eyJpZCI6Miwib3JnYW5pemF0aW9uX2lkIjoxfQ==
     scenario_key: ''
   mock:
     enabled: false
     exclude_patterns: []
     include_patterns: []
     policy: all
-    project_key: ''
+    project_key: eyJpZCI6MSwib3JnYW5pemF0aW9uX2lkIjoxfQ==
     scenario_key: ''
-    service_url: ''
-proxy_config_path: config/settings.yml
+    service_url: http://localhost:3000
+proxy_config_path: "/home/jvlarble/bitbucket/scenarios-proxy/config/settings.yml"

@@ -1,53 +1,49 @@
-# Scenarios Mock API
+# Stoobly Agent
 
-Mock API and/or proxy for a HTTP service. Uses scenarios-backend to retrieve mocked responses or proxies requests to actual service.
+Record requests to Stoobly and mock requests
 
-## Getting Started
+## Proxy Installation
 
-* Copy config/env.yml.sample to config/env.yml
+* Install pipx
 
-* Edit as needed (see below)
+    ```
+    sudo apt-get install pipx
+    ```
 
-## Configuration
+* Install mitmproxy
 
-The following are the supported configuration for config/env.yml
+    ```
+    pipx install mitmproxy
+    ```
 
-#### api_key
+* Inject pip packages into mitmproxy
 
-Scenarios API key found under user settings.
+    ```
+    pipx inject mitmproxy requests pyyaml watchdog
+    ```
 
-#### project_id
+## UI Installation
 
-Scenarios project id found uner project settings.
+* Install Ruby 2.6.5 with [rvm](https://rvm.io/rvm/install)
 
-#### scenarios_url
+    ```
+    rvm install ruby-2.6.5
+    ```
 
-Scenarios API URL 
+* Install bundler
+    
+    ```
+    gem install bundler
+    ```
 
-```
-e.g. https://scenarios-scenarios-staging-rwba73bphq-uw.a.run.app
-```
+* Instrall dependencies
 
-#### service_url (optional)
-
-URL of the service to proxy requests to. Only set this if proxying requests that are not yet uploaded is desired.
-For example, when a new project is created, any request received will not have been uploaded. Setting a service 
-URL enables proxying the request to the service. Depending on your `upload_policy`, the request may be uploaded.
-
-```
-e.g. http://localhost:3000
-```
-
-#### upload_policy
-
-* *default*: requests will always be sent to `service_url` and then uploaded to scenarios API.
-
-* *not_found*: requests will be sent to scenarios API and if no response is found, each request will be proxied to `service_url`.
-If a response is sucessfully received (regardless of status code), the request and response will be uploaded to scenarios URL.
+    ```
+    bundle install
+    ```
 
 ## Usage
 
 ```
-rails s
+bin/run.sh
 ```
-
