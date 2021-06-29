@@ -2505,10 +2505,9 @@ __webpack_require__.r(__webpack_exports__);
 // `ng build --prod` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 const environment = {
-    // agentUrl: 'http://localhost:3001',
-    agentUrl: '',
-    apiUrl: 'http://localhost:3000',
-    googleOauthClientId: '320365524835-hcs6qvr7ajgrlmcsosbe7oqn0fpslrh0.apps.googleusercontent.com',
+    agentUrl: 'http://0.0.0.0:4200',
+    apiUrl: 'https://alpha.api.stoobly.com',
+    googleOauthClientId: '320365524835-sb4qjo8h93v257gbfbre9k38fv46k0cu.apps.googleusercontent.com',
     homepageUrl: 'http://localhost:4200/login',
     production: false,
     stripeKey: 'pk_test_Pf0dKM9QvXwkm5FPGCaxE5Xt',
